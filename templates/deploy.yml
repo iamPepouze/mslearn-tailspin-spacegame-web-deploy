@@ -1,26 +1,16 @@
 parameters:
-  environment:
   azureSubscription: "Resource Manager - Tailspin - Space Game"
   resourceGroupName: "tailspin-space-game-rg"
   appName:
   package: "$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip"
 
-deployment: Deploy
-pool:
-  vmImage: "ubuntu-20.04"
-environment: staging
-variables:
-  - group: "Release"
-strategy:
-  runOnce:
-    deploy:
-      steps:
-        - download: current
-          artifact: drop
-        - task: AzureWebApp@1
-          displayName: "Azure App Service Deploy: website"
-          inputs:
-            azureSubscription: "${{ parameters.azureSubscription }}"
-            resourceGroupName: "${{ parameters.resourceGroupName }}"
-            appName: "${{ parameters.appName }}"
-            package: "${{ parameters.package }}"
+steps:
+  - download: current
+    artifact: drop
+  - task: AzureWebApp@1
+    displayName: "Azure App Service Deploy: website"
+    inputs:
+      azureSubscription: "${{ parameters.azureSubscription }}"
+      resourceGroupName: "${{ parameters.resourceGroupName }}"
+      appName: "${{ parameters.appName }}"
+      package: "${{ parameters.package }}"

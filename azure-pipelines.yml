@@ -84,26 +84,53 @@ stages:
         eq(variables['Build.SourceBranchName'], variables['releaseBranchName'])
       )
     jobs:
-      - template: templates/deploy.yml
-        parameters:
-          environment: dev
-          appName: "$(WebAppNameDev)"
+      - deployment: Deploy
+        pool:
+          vmImage: "ubuntu-20.04"
+        environment: dev
+        variables:
+          - group: Release
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: templates/deploy.yml
+                  parameters:
+                    appName: "$(WebAppNameDev)"
 
   - stage: "Test"
     displayName: "Deploy to the test environment"
     dependsOn: Dev
     #condition: eq(variables['Build.Reason'], 'Schedule')
     jobs:
-      - template: templates/deploy.yml
-        parameters:
-          environment: test
-          appName: "$(WebAppNameTest)"
+      - deployment: Deploy
+        pool:
+          vmImage: "ubuntu-20.04"
+        environment: test
+        variables:
+          - group: "Release"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: templates/deploy.yml
+                  parameters:
+                    appName: "$(WebAppNameTest)"
 
   - stage: "Staging"
     displayName: "Deploy to the staging environment"
     dependsOn: Test
     jobs:
-      - template: templates/deploy.yml
-        parameters:
-          environment: staging
-          appName: "$(WebAppNameStaging)"
+      - deployment: Deploy
+        pool:
+          vmImage: "ubuntu-20.04"
+        environment: staging
+        variables:
+          - group: "Release"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: templates/deploy.yml
+                  parameters:
+                    appName: "$(WebAppNameStaging)"
